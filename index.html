@@ -14,13 +14,14 @@
     input, select, button { font-size:1rem; padding:10px 12px; border-radius:8px; border:1px solid #ddd }
     button{ background:var(--accent); color:white; border:none; padding:10px 14px; cursor:pointer }
     button.secondary{ background:#6b7280 }
-    .controls > * { min-width:120px }
+  .controls > * { min-width:100px }
     .controls .full { flex:1 1 160px; min-width:120px }
 
-    /* Table styles */
-    .table-wrap{ width:100%; overflow:auto; border:1px solid #eee; border-radius:8px }
-    table { width:100%; border-collapse:collapse; margin-top:12px; min-width:720px }
-    th, td { border-bottom:1px solid #eee; padding:10px 12px; text-align:left }
+  /* Table styles (compact) */
+  .table-wrap{ width:100%; overflow:auto; border:1px solid #eee; border-radius:6px }
+  table { width:100%; border-collapse:collapse; margin-top:6px; table-layout:fixed; font-size:0.75rem }
+  th, td { border-bottom:1px solid #eee; padding:4px 6px; text-align:left }
+  thead th { font-size:0.8rem }
     thead th { position:sticky; top:0; background:#fafafa; z-index:1; }
     th { background:#fafafa; cursor:pointer }
     tr:nth-child(even){ background:#fcfcfc }
@@ -35,7 +36,9 @@
     @media (max-width:640px){
       .controls{flex-direction:column;align-items:stretch}
       .controls > *{min-width:0}
-      table{min-width:600px}
+  table{min-width:320px}
+  /* further reduce table/text size on small screens */
+  #examsTable, #examsTable td, #examsTable th { font-size:0.7rem }
     }
   </style>
 </head>
