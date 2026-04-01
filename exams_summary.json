@@ -1,0 +1,44 @@
+{
+  "totalExams": 795,
+  "totalPrograms": 146,
+  "examDays": [
+    "FRIDAY 17TH APRIL 2026",
+    "FRIDAY 24TH APRIL 2026",
+    "MONDAY 13TH APRIL 2026",
+    "MONDAY 20TH APRIL 2026",
+    "TEUSDAY   21ST  APRIL 2026",
+    "TEUSDAY 14TH APRIL 2026",
+    "THURSDAY 16TH APRIL 2026",
+    "THURSDAY 23RD APRIL 2026",
+    "WEDNESDAY  15TH APRIL 2026",
+    "WEDNESDAY 22ND  APRIL 2026"
+  ],
+  "timeSlots": [
+    "7:30 AM - 9:30 AM",
+    "10:30 AM - 12:30 PM",
+    "1:30 PM - 3:30 PM",
+    "4:30 PM - 6:30 PM"
+  ],
+  "programs": [
+    "B HRM",
+    "B. Acturial Science",
+    "B. Ed (Sci)",
+    "B. Ed (Science)",
+    "B. Ed Arts",
+    "B. Ed Arts & Science",
+    "B. Ed Arts (Lit)",
+    "B. Ed Sci",
+    "B. Ed arts (CRE)",
+    "B. TED",
+    "B. TED (Buildg and Constrn)",
+    "B. TED (Building + Mechan)",
+    "B. TED (Electrical)",
+    "B. TED (Mechanical)",
+    "B. Tech Ed (Construction)",
+    "B. Tech Ed (Electrical)",
+    "B. Tech Ed (Mechanical)",
+    "B.ED (Science)",
+    "B.ED ARTS",
+    "B.ED Arts"
+  ]
+}
