@@ -175,6 +175,46 @@ function setupInteractions() {
   function showProgrammeSuggestions(filteredProg) {
     programmeSuggestions.innerHTML = '';
     if (!filteredProg || filteredProg.length === 0) { programmeSuggestions.style.display = 'none'; return }
+
+    // Positioning: place below by default, but if there's not enough space (keyboard on mobile), place above input.
+    const rect = programmeFilter.getBoundingClientRect();
+    const viewportH = window.innerHeight || document.documentElement.clientHeight;
+    const spaceBelow = viewportH - rect.bottom;
+    const spaceAbove = rect.top;
+    const preferredMax = 220;
+
+    // Set width to match input for easier tapping
+    programmeSuggestions.style.width = programmeFilter.offsetWidth + 'px';
+    programmeSuggestions.style.left = '0';
+
+    let maxH, placeAbove = false;
+    if (spaceBelow >= Math.min(preferredMax, 160)) {
+      // enough room below
+      programmeSuggestions.style.top = (programmeFilter.offsetHeight + 6) + 'px';
+      programmeSuggestions.style.bottom = 'auto';
+      maxH = Math.min(preferredMax, Math.max(80, spaceBelow - 16));
+    } else if (spaceAbove >= Math.min(preferredMax, 160)) {
+      // place above
+      programmeSuggestions.style.top = 'auto';
+      programmeSuggestions.style.bottom = (programmeFilter.offsetHeight + 6) + 'px';
+      maxH = Math.min(preferredMax, Math.max(80, spaceAbove - 16));
+      placeAbove = true;
+    } else {
+      // pick the larger side
+      if (spaceAbove > spaceBelow) {
+        programmeSuggestions.style.top = 'auto';
+        programmeSuggestions.style.bottom = (programmeFilter.offsetHeight + 6) + 'px';
+        maxH = Math.max(60, spaceAbove - 16);
+        placeAbove = true;
+      } else {
+        programmeSuggestions.style.top = (programmeFilter.offsetHeight + 6) + 'px';
+        programmeSuggestions.style.bottom = 'auto';
+        maxH = Math.max(60, spaceBelow - 16);
+      }
+    }
+
+    programmeSuggestions.style.maxHeight = Math.max(80, Math.min(preferredMax, Math.floor(maxH))) + 'px';
+
     for (const p of filteredProg.slice(0, 30)) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -187,7 +227,12 @@ function setupInteractions() {
       });
       programmeSuggestions.appendChild(btn);
     }
+
+    // Ensure it's visible and on top
     programmeSuggestions.style.display = 'block';
+    programmeSuggestions.style.zIndex = '9999';
+    // If placed above, add a class for possible styling tweaks
+    if (placeAbove) programmeSuggestions.classList.add('above'); else programmeSuggestions.classList.remove('above');
   }
 
   // Build a list of programmes for suggestions
@@ -205,7 +250,13 @@ function setupInteractions() {
     showProgrammeSuggestions(matches);
   });
 
-  programmeFilter.addEventListener('blur', () => { setTimeout(() => programmeSuggestions.style.display = 'none', 150) });
+  // Hide suggestions on blur *unless* focus moves into the suggestions (e.g., user tapped a suggestion).
+  programmeFilter.addEventListener('blur', () => {
+    setTimeout(() => {
+      const active = document.activeElement;
+      if (!programmeSuggestions.contains(active)) programmeSuggestions.style.display = 'none';
+    }, 300);
+  });
 }
 
 // init
