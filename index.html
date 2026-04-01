@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Exam Sorter (Demo)</title>
+  <style>
+    :root{ --gap:12px; --accent:#2563eb; --muted:#666 }
+    html,body{height:100%}
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 12px; font-size:16px; color:#111 }
+    h1{font-size:1.25rem;margin-bottom:6px}
+    .controls { display:flex; gap:var(--gap); align-items:center; margin-bottom:12px; flex-wrap:wrap }
+    .controls label{display:flex;flex-direction:column;font-size:0.9rem}
+    input, select, button { font-size:1rem; padding:10px 12px; border-radius:8px; border:1px solid #ddd }
+    button{ background:var(--accent); color:white; border:none; padding:10px 14px; cursor:pointer }
+    button.secondary{ background:#6b7280 }
+    .controls > * { min-width:120px }
+    .controls .full { flex:1 1 160px; min-width:120px }
+
+    /* Table styles */
+    .table-wrap{ width:100%; overflow:auto; border:1px solid #eee; border-radius:8px }
+    table { width:100%; border-collapse:collapse; margin-top:12px; min-width:720px }
+    th, td { border-bottom:1px solid #eee; padding:10px 12px; text-align:left }
+    thead th { position:sticky; top:0; background:#fafafa; z-index:1; }
+    th { background:#fafafa; cursor:pointer }
+    tr:nth-child(even){ background:#fcfcfc }
+    .small { font-size:0.9rem; color:var(--muted) }
+
+    /* Suggestions dropdown (mobile-friendly fallback) */
+    .suggestions { position: absolute; background:white; border:1px solid #ddd; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,0.08); max-height:220px; overflow:auto; z-index:50 }
+    .suggestions button{ display:block; width:100%; text-align:left; padding:8px 10px; background:transparent; border:none }
+    .suggestions button:hover{ background:#f3f4f6 }
+
+    /* Responsive tweaks */
+    @media (max-width:640px){
+      .controls{flex-direction:column;align-items:stretch}
+      .controls > *{min-width:0}
+      table{min-width:600px}
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Exam Sorter</h1>
+  <p class="small">Search or select your programme and then select the year that you are currently in. Click apply to filter.</p>
+
+  <div class="controls">
+    <div style="position:relative;">
+      <label>Programme: <input id="programmeFilter" list="programmeOptions" placeholder="Type to search programmes" autocomplete="off" />
+        <datalist id="programmeOptions"></datalist>
+      </label>
+      <!-- Fallback suggestions container for mobile devices -->
+      <div id="programmeSuggestions" class="suggestions" style="display:none;"></div>
+    </div>
+    <label>Year of study: <select id="yearFilter"><option value="">All</option></select></label>
+    <label>Day: <select id="dayFilter"><option value="">All</option></select></label>
+    <label>Search: <input id="textSearch" placeholder="unit name, code or venue" /></label>
+    <button id="apply">Apply</button>
+    <button id="reset">Reset</button>
+    <button id="showAll" class="secondary">Show all</button>
+  </div>
+
+  <div id="counts" class="small" style="margin-bottom:8px"></div>
+
+  <div class="small">Click a column header to sort ascending/descending by that column.</div>
+
+  <div class="table-wrap">
+    <table id="examsTable">
+      <thead>
+        <tr>
+          <th data-key="day">Day</th>
+          <th data-key="timeSlot">Time</th>
+          <th data-key="programme">Programme</th>
+          <th data-key="unitCode">Unit Code</th>
+          <th data-key="unitName">Unit Name</th>
+          <th data-key="venue">Venue</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Exam Sorter (Demo)</title>
+  <style>
+    :root{ --gap:12px; --accent:#2563eb; --muted:#666 }
+    html,body{height:100%}
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 12px; font-size:16px; color:#111 }
+    h1{font-size:1.25rem;margin-bottom:6px}
+    .controls { display:flex; gap:var(--gap); align-items:center; margin-bottom:12px; flex-wrap:wrap }
+    .controls label{display:flex;flex-direction:column;font-size:0.9rem}
+    input, select, button { font-size:1rem; padding:10px 12px; border-radius:8px; border:1px solid #ddd }
+    button{ background:var(--accent); color:white; border:none; padding:10px 14px; cursor:pointer }
+    button.secondary{ background:#6b7280 }
+    .controls > * { min-width:120px }
+    .controls .full { flex:1 1 160px; min-width:120px }
+
+    /* Table styles */
+    .table-wrap{ width:100%; overflow:auto; border:1px solid #eee; border-radius:8px }
+    table { width:100%; border-collapse:collapse; margin-top:12px; min-width:720px }
+    th, td { border-bottom:1px solid #eee; padding:10px 12px; text-align:left }
+    thead th { position:sticky; top:0; background:#fafafa; z-index:1; }
+    th { background:#fafafa; cursor:pointer }
+    tr:nth-child(even){ background:#fcfcfc }
+    .small { font-size:0.9rem; color:var(--muted) }
+
+    /* Suggestions dropdown (mobile-friendly fallback) */
+    .suggestions { position: absolute; background:white; border:1px solid #ddd; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,0.08); max-height:220px; overflow:auto; z-index:50 }
+    .suggestions button{ display:block; width:100%; text-align:left; padding:8px 10px; background:transparent; border:none }
+    .suggestions button:hover{ background:#f3f4f6 }
+
+    /* Responsive tweaks */
+    @media (max-width:640px){
+      .controls{flex-direction:column;align-items:stretch}
+      .controls > *{min-width:0}
+      table{min-width:600px}
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Exam Sorter</h1>
+  <p class="small">Search or select your unit and then select the year that you are currently in. Click apply to finish the process</p>
+
+  <div class="controls">
+    <div style="position:relative;">
+      <label>Programme: <input id="programmeFilter" list="programmeOptions" placeholder="Type to search programmes" autocomplete="off" />
+        <datalist id="programmeOptions"></datalist>
+      </label>
+      <!-- Fallback suggestions container for mobile devices -->
+      <div id="programmeSuggestions" class="suggestions" style="display:none;"></div>
+    </div>
+    <label>Year of study: <select id="yearFilter"><option value="">All</option></select></label>
+    <label>Day: <select id="dayFilter"><option value="">All</option></select></label>
+  <label>Search: <input id="textSearch" placeholder="unit name, code or venue" /></label>
+    <button id="apply">Apply</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div class="small">Click a column header to sort ascending/descending by that column.</div>
+
+  <table id="examsTable">
+    <thead>
+      <tr>
+        <th data-key="day">Day</th>
+        <th data-key="timeSlot">Time</th>
+        <th data-key="programme">Programme</th>
+        <th data-key="unitCode">Unit Code</th>
+        <th data-key="unitName">Unit Name</th>
+  <th data-key="venue">Venue</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="main.js"></script>
+</body>
+</html>
