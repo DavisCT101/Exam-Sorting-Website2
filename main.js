@@ -10,6 +10,30 @@ const STATE = {
 const el = (id) => document.getElementById(id);
 const tbody = () => el('examsTable').querySelector('tbody');
 
+// Score how well a programme matches a query.
+// Returns 3 for exact token match, 2 for token prefix, 1 for substring, 0 for no match.
+function programmeMatchScore(programme, query) {
+  if (!query) return 3;
+  const q = String(query).toLowerCase().trim();
+  if (!q) return 3;
+
+  // normalize programme: remove common degree prefixes and punctuation
+  let p = String(programme || '').toLowerCase();
+  p = p.replace(/\b(bsc|b\.sc|bsc\.)\b/g, '');
+  p = p.replace(/[.,/\\]+/g, ' ');
+  p = p.replace(/\s+/g, ' ').trim();
+  if (!p) return 0;
+
+  const tokens = p.split(/[^a-z0-9]+/).filter(Boolean);
+  // exact token match
+  if (tokens.some(t => t === q)) return 3;
+  // token prefix match
+  if (tokens.some(t => t.startsWith(q))) return 2;
+  // substring match
+  if (p.includes(q)) return 1;
+  return 0;
+}
+
 async function tryFetch(paths) {
   for (const p of paths) {
     try {
@@ -105,6 +129,16 @@ function applyFilters() {
   if (day) res = res.filter(x => (x.day || '') === day);
   if (text) res = res.filter(x => ((x.unitName || '') + ' ' + (x.unitCode || '') + ' ' + (x.venue || '')).toLowerCase().includes(text));
 
+  // AUTO-SORT: If programme filter is exactly "bsc cs", sort by programme ascending
+  // This mimics clicking the "Programme" header
+  const programmeFilterValue = el('programmeFilter').value.trim().toLowerCase();
+  if (programmeFilterValue === 'bsc cs') {
+    STATE.sortKey = 'programme';
+    STATE.sortDir = 1;
+    // Update the visual indicator on the table header (optional)
+    updateSortIndicator();
+  }
+
   if (STATE.sortKey) {
     res.sort((a, b) => {
       const A = (a[STATE.sortKey] || '').toString();
@@ -118,6 +152,30 @@ function applyFilters() {
   updateCounts(res.length);
 }
 
+// Helper function to update sort indicator arrows on table headers
+function updateSortIndicator() {
+  // Remove existing indicators
+  document.querySelectorAll('#examsTable thead th').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    // Remove any existing arrow text
+    const existingArrow = th.querySelector('.sort-arrow');
+    if (existingArrow) existingArrow.remove();
+  });
+  
+  // Add indicator to the sorted column
+  if (STATE.sortKey) {
+    const th = document.querySelector(`#examsTable thead th[data-key="${STATE.sortKey}"]`);
+    if (th) {
+      const arrow = document.createElement('span');
+      arrow.className = 'sort-arrow';
+      arrow.textContent = STATE.sortDir === 1 ? ' ↑' : ' ↓';
+      arrow.style.marginLeft = '5px';
+      th.appendChild(arrow);
+      th.classList.add(STATE.sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    }
+  }
+}
+
 function updateCounts(visibleCount) {
   const countsEl = el('counts');
   countsEl.textContent = `Loaded: ${STATE.totalCount} exams — Showing: ${visibleCount}`;
@@ -129,6 +187,8 @@ function resetFilters() {
   el('dayFilter').selectedIndex = 0;
   el('textSearch').value = '';
   STATE.sortKey = null; STATE.sortDir = 1;
+  // Remove sort indicators
+  updateSortIndicator();
   const limit = STATE.showAll ? undefined : 200;
   renderRows(STATE.exams, limit);
   updateCounts(STATE.exams.length);
@@ -149,6 +209,7 @@ function setupInteractions() {
     th.addEventListener('click', () => {
       const key = th.dataset.key;
       if (STATE.sortKey === key) STATE.sortDir = -STATE.sortDir; else { STATE.sortKey = key; STATE.sortDir = 1; }
+      updateSortIndicator();
       applyFilters();
     });
   });
